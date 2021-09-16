@@ -20,9 +20,9 @@ Cluster Autoscaler is a tool that automatically adjusts the size of the Kubernet
 
 Cluster Autoscaler provides integration with Auto Scaling groups. Cluster Autoscaler will attempt to determine the CPU, memory, and GPU resources provided by an EC2 Auto Scaling Group based on the instance type specified in its Launch Configuration or Launch Template. Click [here](https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler/cloudprovider/aws) for more information.
 
-Watch the logs to verify cluster autoscaler is installed properly. If everything looks good, we are now ready to scale our cluster.
+Watch the logs to verify cluster autoscaler is installed properly. If everything looks good, without error log, we are now ready to scale our cluster.
 ```sh
-kubectl -n kube-system logs -f deployment/cluster-autoscaler
+kubectl -n kube-system logs -l app.kubernetes.io/name=aws-cluster-autoscaler
 ```
 
 Scale out pods for high availability.
@@ -31,12 +31,18 @@ cd ~/environment/fisworkshop/eks/
 kubectl apply -f kubernetes/manifest/sockshop-demo-ha.yaml
 ```
 
+And wait util all pods/containers are running:
+```sh
+kubectl -n sockshop get pods -w
+```
+Enter `CTRL+C` to exit watch mode
+
 ## Rerun Experiment
 
-Back to the AWS FIS service page and select `TerminateEKSNodes` and start the experiment using **Actions** button. AWS FIS shuts down EKS nodes again. On the EC2 service page, you will see the instances being terminated. And you can see that new instances are created right after the EKS nodes are shut down.
+Back to the AWS FIS service page and select `Terminate EKS nodes` and start the experiment using **Actions** button. AWS FIS shuts down EKS nodes again. On the EC2 service page, you will see the instances being terminated. And you can see that new instances are created right after the EKS nodes are shut down.
 
 ```sh
-kubectl -n sockshop get node -w
+kubectl get nodes -w
 ```
 ```sh
 NAME                                            STATUS   ROLES    AGE     VERSION

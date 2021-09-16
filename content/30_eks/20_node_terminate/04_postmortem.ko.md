@@ -18,11 +18,11 @@ weight: 14
 + 클러스터에 자원이 부족해서 포드(Pods) 스케쥴링에 실패했을 경우.
 + 사용량이 특정 시간동안 저조했을 때, 노드에서 동작 중인 포드가 다른 노드에서 실행 가능한 경우.
 
-클러스터 오토스케일러는 오토 스케일링 그룹(Auto Scaling groups)과의 연동 기능을 제공합니다. 클러스터 오토스케일러는 오토스케일링 그룹에서 관리하는 인스턴스의 제공되는 프로세서, 메모리, 그래픽 프로세서 측정합니다. 보다 자세한 내용은 [여기](https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler/cloudprovider/aws)에서 확인할 수 있습니다.
+클러스터 오토스케일러는 오토 스케일링 그룹(Auto Scaling groups)과의 연동 기능을 제공합니다. 클러스터 오토스케일러는 오토스케일링 그룹에서 관리하는 인스턴스의 프로세서, 메모리, 그래픽 프로세서를 측정합니다. 보다 자세한 내용은 [여기](https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler/cloudprovider/aws)에서 확인할 수 있습니다.
 
-먼저, 클러스터 오토스케일러가 잘 설치외어 있는 지 확인합니다. 만약, 오류 메시지가 보이지 않고 정상적으로 보이는 것 같다면, 여러 분의 클러스터는 스케일링 할 준비가 된 것입니다.
+먼저, 클러스터 오토스케일러가 잘 설치되어 있는 지 확인합니다. 만약, 오류 메시지가 보이지 않고 정상적으로 보이는 것 같다면, 여러 분의 클러스터는 스케일링 할 준비가 된 것입니다.
 ```sh
-kubectl -n kube-system logs -f deployment/cluster-autoscaler
+kubectl -n kube-system logs -l app.kubernetes.io/name=aws-cluster-autoscaler
 ```
 
 고가용성 확보를 위하여 포드를 증설합니다.
@@ -31,12 +31,18 @@ cd ~/environment/fisworkshop/eks/
 kubectl apply -f kubernetes/manifest/sockshop-demo-ha.yaml
 ```
 
+모드 포드 또는 컨테이너가 준비가 될 때까지 기다립니다:
+```sh
+kubectl -n sockshop get pods -w
+```
+`CTRL+C`를 눌러서 빠져 나옵니다.
+
 ## 재실험을 통한 가설 검증
 
-AWS FIS 서비스 페이지로 돌아갑니다. 실험 템플릿 목록 중에서 `TerminateEKSNodes`을 선택합니다. 화면 오른 쪽 상단에 있는 **작업** 단추를 누르고 **실험 시작** 을 눌러서 실험을 재시작 합니다. AWS FIS는 EKS 노드를 다시 종료시킬 것입니다. EC2 서비스 페이지로 이동해 보면 종료 중인 EKS 노드들을 볼 수 있습니다. 그리고 EKS 노드가 종료된 다음에는 새 인스턴스가 생성되는 것을 볼 수 있습니다.
+AWS FIS 서비스 페이지로 돌아갑니다. 실험 템플릿 목록 중에서 `Terminate EKS nodes`을 선택합니다. 화면 오른 쪽 상단에 있는 **작업** 단추를 누르고 **실험 시작** 을 눌러서 실험을 재시작 합니다. AWS FIS는 EKS 노드를 다시 종료시킬 것입니다. EC2 서비스 페이지로 이동해 보면 종료 중인 EKS 노드들을 볼 수 있습니다. 그리고 EKS 노드가 종료된 다음에는 새 인스턴스가 생성되는 것을 볼 수 있습니다.
 
 ```sh
-kubectl -n sockshop get node -w
+kubectl get nodes -w
 ```
 ```sh
 NAME                                            STATUS   ROLES    AGE     VERSION
